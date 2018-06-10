@@ -45,32 +45,15 @@ object LoggingInformation {
       val (ex, req) =
         elem._1 -> elem._2
 
-      def serializeException(ex: Exception): JsObject = {
-        def loop(throwable: Throwable): JsObject = {
-          val causedBy =
-            Option(throwable)
-              .fold(Json.obj()) { cause =>
-                Json.obj("causedBy" -> loop(cause.getCause))
-              }
-
-          Json.obj(
-            "class" -> ex.getClass.getName(),
-            "message" -> ex.getMessage,
-            "stackTrace" -> ex.getStackTrace.map(_.toString)
-          ) ++ causedBy
-        }
-
-        Json.obj(
-          "class" -> ex.getClass.getName(),
-          "message" -> ex.getMessage,
-          "stackTrace" -> ex.getStackTrace.map(_.toString)
-        ) ++ loop(ex.getCause)
-      }
-
       httpRequestInformation(req) ++
         Json.obj(
           "message" -> ex.getMessage,
-          "exception" -> serializeException(ex)
+          "exception" ->
+            Json.obj(
+              "class" -> ex.getClass.getName(),
+              "message" -> ex.getMessage,
+              "stackTrace" -> ex.getStackTrace.map(_.toString)
+            )
         )
     }
 

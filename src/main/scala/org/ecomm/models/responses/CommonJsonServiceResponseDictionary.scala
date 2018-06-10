@@ -1,6 +1,6 @@
-package org.ecomm.models
+package org.ecomm.models.responses
 
-import org.ecomm.models.exceptions.JsonServiceResponseException
+import org.ecomm.models.responses.exceptions.JsonServiceResponseException
 
 object CommonJsonServiceResponseDictionary {
   object E0200 extends DefaultJsonServiceResponse {

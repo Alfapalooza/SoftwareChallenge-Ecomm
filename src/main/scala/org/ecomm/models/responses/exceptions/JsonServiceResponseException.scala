@@ -1,10 +1,10 @@
-package org.ecomm.models.exceptions
+package org.ecomm.models.responses.exceptions
 
-import org.ecomm.models.{ CommonJsonServiceResponseDictionary, DefaultJsonServiceResponse }
+import org.ecomm.models.responses.{ CommonJsonServiceResponseDictionary, DefaultJsonServiceResponse }
 
 import scala.util.control.NoStackTrace
 
-case class JsonServiceResponseException(msg: String, code: Int, status: Int) extends Throwable(msg) with DefaultJsonServiceResponse with NoStackTrace {
+class JsonServiceResponseException(val msg: String, val code: Int, val status: Int) extends Throwable(msg) with DefaultJsonServiceResponse with NoStackTrace {
   override def apply(message: String): JsonServiceResponseException =
     new JsonServiceResponseException(message, code, status)
 
@@ -17,7 +17,7 @@ case class JsonServiceResponseException(msg: String, code: Int, status: Int) ext
 
 object JsonServiceResponseException {
   def apply(throwable: Throwable): JsonServiceResponseException =
-    apply(throwable)
+    apply(new Exception(throwable))
 
   def apply(ex: Exception): JsonServiceResponseException =
     CommonJsonServiceResponseDictionary.E0500(ex)

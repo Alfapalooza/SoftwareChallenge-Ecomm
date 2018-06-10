@@ -14,8 +14,8 @@ class ModulesProvider @Inject() (
     val akka: Akka,
     val applicationLogger: ApplicationLogger
 ) {
-  def ModulesAttr[T]: TypedKey[Modules[T]] =
-    TypedKey[Modules[T]]("Modules")
+  val ModulesAttr: TypedKey[Modules[_]] =
+    TypedKey[Modules[_]]("Modules")
 
   /**
    * Distinction is made between [[ModulesProvider]] & [[Modules]].
@@ -28,7 +28,7 @@ class ModulesProvider @Inject() (
    * @tparam T - The request entity type
    * @return ModulesProvider with request applied to initialize class members dependent on the request
    */
-  def apply[T](req: HttpRequestWithEntity[T]): Modules[T] =
-    req.getAttr(ModulesAttr[T]).getOrElse(throw new Exception(s"Binding error `Modules` to request"))
+  def apply[T](req: HttpRequestWithEntity[T]): Modules[_] =
+    req.getAttr(ModulesAttr).getOrElse(throw new Exception(s"Binding error `Modules` to request"))
 }
 

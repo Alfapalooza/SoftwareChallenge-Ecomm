@@ -19,6 +19,12 @@ object Server extends App with Routes {
   override lazy val modulesProvider: ModulesProvider =
     injector.instance[ModulesProvider]
 
+  override lazy val requestLogger =
+    injector.instance[RequestLogger]
+
+  override lazy val errorLogger =
+    injector.instance[ErrorLogger]
+
   override lazy val akka: Akka =
     modulesProvider.akka
 
@@ -26,13 +32,7 @@ object Server extends App with Routes {
     modulesProvider.configuration
 
   override lazy val corsConfiguration =
-    modulesProvider.configuration.corsConfiguration
-
-  override lazy val requestLogger =
-    injector.instance[RequestLogger]
-
-  override lazy val errorLogger =
-    injector.instance[ErrorLogger]
+    configuration.corsConfiguration
 
   implicit val materializer: ActorMaterializer =
     akka.actorMaterializer

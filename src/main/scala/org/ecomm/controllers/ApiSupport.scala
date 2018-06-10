@@ -3,9 +3,10 @@ package org.ecomm.controllers
 import akka.http.scaladsl.server.Directives.{ complete, _ }
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
-import play.api.libs.json.{ Json, Writes }
 
-import org.ecomm.models.JsonServiceResponse
+import org.ecomm.models.responses.JsonServiceResponse
+
+import play.api.libs.json.{ Json, Writes }
 
 import scala.concurrent.Future
 import scala.util.{ Failure, Success }

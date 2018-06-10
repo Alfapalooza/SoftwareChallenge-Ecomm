@@ -2,9 +2,10 @@ package org.ecomm
 
 import org.ecomm.configuration.Configuration
 import org.ecomm.guice.{ Akka, ModulesProvider }
+import org.ecomm.helpers.basket.BasketHelper
 import org.ecomm.logger.impl.ApplicationLogger
+
 import akka.http.scaladsl.server.directives.HttpRequestWithEntity
-import org.ecomm.helpers.BasketHelper
 
 class Modules[T](
     val configuration: Configuration,
@@ -12,7 +13,7 @@ class Modules[T](
     val applicationLogger: ApplicationLogger
 )(implicit requestWithEntity: HttpRequestWithEntity[T]) {
   lazy val basketHelper: BasketHelper[T] =
-    new BasketHelper
+    new BasketHelper()(requestWithEntity, akka.actorMaterializer)
 }
 
 object Modules {

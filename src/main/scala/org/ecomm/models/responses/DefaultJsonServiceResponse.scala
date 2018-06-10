@@ -1,8 +1,6 @@
-package org.ecomm.models
+package org.ecomm.models.responses
 
-import org.ecomm.utils.WritesUtils
-
-import play.api.libs.json.Writes
+import play.api.libs.json.{ JsString, Writes }
 
 trait DefaultJsonServiceResponse extends JsonServiceResponse[String] {
   self =>
@@ -19,7 +17,7 @@ trait DefaultJsonServiceResponse extends JsonServiceResponse[String] {
     }
 
   override implicit val writes: Writes[String] =
-    WritesUtils.string
+    (o: String) => JsString(o)
 
   override val response: String =
     msg

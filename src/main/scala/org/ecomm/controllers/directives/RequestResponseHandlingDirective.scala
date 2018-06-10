@@ -5,7 +5,7 @@ import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import java.util.UUID
 
 import org.ecomm.logger.impl.{ ErrorLogger, RequestLogger }
-import org.ecomm.models.exceptions.JsonServiceResponseException
+import org.ecomm.models.responses.exceptions.JsonServiceResponseException
 
 import play.api.libs.json.Json
 

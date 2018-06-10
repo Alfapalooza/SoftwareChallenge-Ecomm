@@ -12,13 +12,13 @@ import akka.http.scaladsl.unmarshalling.{ FromEntityUnmarshaller, FromRequestUnm
 trait MarshallingEntityWithRequestAndModulesAttrDirective extends MarshallingEntityWithRequestDirective {
   def modulesProvider: ModulesProvider
 
-  def modules[T](implicit requestWithEntity: HttpRequestWithEntity[T]): Modules[T] =
+  def modules[T](implicit requestWithEntity: HttpRequestWithEntity[T]): Modules[_] =
     modulesProvider(requestWithEntity)
 
-  def requestEntityUnmarshallerWithEntityAndModulesAttr[T](um: FromEntityUnmarshaller[T]): Directive1[HttpRequestWithEntity[T]] =
+  def requestEntityUnmarshallerWithModulesAttr[T](um: FromEntityUnmarshaller[T]): Directive1[HttpRequestWithEntity[T]] =
     requestEntityUnmarshallerWithEntity(um).tflatMap(appendAttrs)
 
-  def requestUnmarshallerWithEntityAndAttr[T](um: FromRequestUnmarshaller[T]): Directive1[HttpRequestWithEntity[T]] =
+  def requestUnmarshallerWithModulesAttr[T](um: FromRequestUnmarshaller[T]): Directive1[HttpRequestWithEntity[T]] =
     requestUnmarshallerWithEntity(um).tflatMap(appendAttrs)
 
   private def appendAttrs[T](requestWithEntity: Tuple1[HttpRequestWithEntity[T]]): Directive1[HttpRequestWithEntity[T]] = {
@@ -29,7 +29,7 @@ trait MarshallingEntityWithRequestAndModulesAttrDirective extends MarshallingEnt
       Modules(modulesProvider)(req)
 
     val attrs =
-      TypedMap(TypedEntry(modulesProvider.ModulesAttr[T], modules))
+      TypedMap(TypedEntry(modulesProvider.ModulesAttr, modules))
 
     provide(req.withAttrs(attrs))
   }

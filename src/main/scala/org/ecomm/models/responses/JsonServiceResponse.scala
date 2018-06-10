@@ -1,4 +1,4 @@
-package org.ecomm.models
+package org.ecomm.models.responses
 
 import play.api.libs.json.{ JsObject, Json, Writes }
 
