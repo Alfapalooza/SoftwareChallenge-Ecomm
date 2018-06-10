@@ -13,26 +13,24 @@ import akka.http.scaladsl.model.{ HttpRequest, IdHeader }
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ Directive0, Directive1, ExceptionHandler, Route }
 
-trait RequestResponseHandlingDirective extends PlayJsonSupport with RejectionHandlerDirective {
+trait RequestResponseHandlingDirective extends PlayJsonSupport {
   def requestLogger: RequestLogger
 
   def errorLogger: ErrorLogger
 
   def requestResponseHandler(route: Route): Route =
-    cors {
-      requestId {
-        case (request, id) =>
-          addRequestId(id) {
-            addResponseId(id) {
-              val start = System.currentTimeMillis
-              tagAndLogRequest(request, id, start) {
-                handleExceptions(exceptionHandler(request)) {
-                  route
-                }
+    requestId {
+      case (request, id) =>
+        addRequestId(id) {
+          addResponseId(id) {
+            val start = System.currentTimeMillis
+            tagAndLogRequest(request, id, start) {
+              handleExceptions(exceptionHandler(request)) {
+                route
               }
             }
           }
-      }
+        }
     }
 
   private def exceptionHandler(req: HttpRequest): ExceptionHandler =

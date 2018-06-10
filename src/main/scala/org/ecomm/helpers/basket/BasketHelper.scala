@@ -6,13 +6,12 @@ import org.ecomm.models.responses.exceptions.ItemNotFoundException
 import org.ecomm.utils.AkkaStreamsUtils._
 import org.ecomm.utils.PriceUtils._
 
-import akka.http.scaladsl.server.directives.HttpRequestWithEntity
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-class BasketHelper[T]()(implicit requestWithEntity: HttpRequestWithEntity[T], materializer: ActorMaterializer) {
+class BasketHelper()(implicit materializer: ActorMaterializer) {
   private implicit val ec: ExecutionContext =
     materializer.executionContext
 

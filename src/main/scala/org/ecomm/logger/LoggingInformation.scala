@@ -1,10 +1,8 @@
 package org.ecomm.logger
 
 import play.api.libs.json.{ JsObject, JsString, Json }
-import org.ecomm.utils.OptionUtils._
 
 import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, IdHeader }
-import akka.http.scaladsl.server.directives.HttpRequestWithEntity
 
 trait LoggingInformation[-T] {
   def log(elem: T): JsObject
@@ -40,8 +38,8 @@ object LoggingInformation {
         "headers" -> elem.headers.map(header => s"${header.name}: ${header.value}")
       )
 
-  implicit val exceptionWithHttpRequest: LoggingInformation[(Exception, HttpRequest)] =
-    (elem: (Exception, HttpRequest)) => {
+  implicit val exceptionWithHttpRequest: LoggingInformation[(Throwable, HttpRequest)] =
+    (elem: (Throwable, HttpRequest)) => {
       val (ex, req) =
         elem._1 -> elem._2
 
@@ -55,21 +53,5 @@ object LoggingInformation {
               "stackTrace" -> ex.getStackTrace.map(_.toString)
             )
         )
-    }
-
-  implicit def httpRequestWithEntity[T]: LoggingInformation[HttpRequestWithEntity[T]] =
-    (reqWithEntity: HttpRequestWithEntity[T]) => {
-      val req =
-        reqWithEntity.request
-
-      val bodyOpt =
-        if (reqWithEntity.body.toString.isEmpty)
-          None
-        else
-          reqWithEntity.body.toString.?
-
-      bodyOpt.fold(httpRequestInformation(req)) { body =>
-        httpRequestInformation(req) ++ Json.obj("body" -> body)
-      }
     }
 }

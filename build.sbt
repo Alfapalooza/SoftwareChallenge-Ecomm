@@ -1,11 +1,6 @@
 lazy val akkaHttpVersion = "10.1.0"
 lazy val akkaVersion    = "2.5.11"
 
-lazy val dependencyInjectionLibraries =
-  Seq(
-    "com.google.inject.extensions" % "guice-assistedinject" % "4.1.0",
-    "net.codingwell" %% "scala-guice" % "4.1.0")
-
 lazy val jsonParsingLibrary =
   "com.typesafe.play" %% "play-json" % "2.6.9"
 
@@ -31,7 +26,7 @@ lazy val root =
           "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
           "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
           "com.typesafe.akka" %% "akka-stream-testkit"  % akkaVersion     % Test,
-          "org.scalatest"     %% "scalatest"            % "3.0.1"         % Test) ++ dependencyInjectionLibraries :+ jsonParsingLibrary,
+          "org.scalatest"     %% "scalatest"            % "3.0.1"         % Test) :+ jsonParsingLibrary,
       scalacOptions ++=
         Seq(
           "-unchecked",

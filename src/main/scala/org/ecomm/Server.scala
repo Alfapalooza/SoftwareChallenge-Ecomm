@@ -1,41 +1,35 @@
 package org.ecomm
 
-import com.google.inject.{ Guice, Injector }
-
 import org.ecomm.configuration.Configuration
-import org.ecomm.guice.{ Akka, ModulesProvider }
-import org.ecomm.guice.modules.ModuleBindings
+import org.ecomm.helpers.basket.BasketHelper
 import org.ecomm.logger.impl.{ ErrorLogger, RequestLogger }
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
 
 object Server extends App with Routes {
-  import net.codingwell.scalaguice.InjectorExtensions._
+  val configuration: Configuration =
+    new Configuration()
 
-  private val injector: Injector =
-    Guice.createInjector(new ModuleBindings())
+  implicit val actorSystem: ActorSystem =
+    ActorSystem(configuration.name, configuration.underlyingConfig)
 
-  override lazy val modulesProvider: ModulesProvider =
-    injector.instance[ModulesProvider]
+  implicit val actorMaterializer: ActorMaterializer =
+    ActorMaterializer()(actorSystem)
 
-  override lazy val requestLogger =
-    injector.instance[RequestLogger]
+  implicit val timeout: Timeout =
+    configuration.timeout
 
-  override lazy val errorLogger =
-    injector.instance[ErrorLogger]
+  lazy val requestLogger: RequestLogger =
+    new RequestLogger()
 
-  override lazy val akka: Akka =
-    modulesProvider.akka
+  lazy val errorLogger: ErrorLogger =
+    new ErrorLogger()
 
-  override lazy val configuration: Configuration =
-    modulesProvider.configuration
-
-  override lazy val corsConfiguration =
-    configuration.corsConfiguration
-
-  implicit val materializer: ActorMaterializer =
-    akka.actorMaterializer
+  lazy val basketHelper: BasketHelper =
+    new BasketHelper()
 
   Http()
     .bindAndHandle(

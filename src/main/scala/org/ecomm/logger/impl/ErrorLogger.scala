@@ -1,17 +1,15 @@
 package org.ecomm.logger.impl
 
-import com.google.inject.Inject
 import org.ecomm.logger.{ Logger, LoggingInformation }
+
 import akka.event.{ Logging, LoggingAdapter }
-import org.ecomm.guice.Akka
 
-class ErrorLogger @Inject() (akka: Akka) extends Logger {
+import akka.actor.ActorSystem
+
+class ErrorLogger()(implicit actorSystem: ActorSystem) extends Logger {
   override protected val logger: LoggingAdapter =
-    Logging(akka.actorSystem, getClass)
+    Logging(actorSystem, getClass)
 
-  def error[T](throwable: Throwable, elem: T)(implicit loggingInformation: LoggingInformation[(Exception, T)]): Unit =
-    error(new Exception(throwable), elem)
-
-  def error[T](exception: Exception, elem: T)(implicit loggingInformation: LoggingInformation[(Exception, T)]): Unit =
-    logger.error(loggingInformation.log(exception.getMessage, exception -> elem).toString)
+  def error[T](throwable: Throwable, elem: T)(implicit loggingInformation: LoggingInformation[(Throwable, T)]): Unit =
+    logger.error(loggingInformation.log(throwable.getMessage, throwable -> elem).toString)
 }

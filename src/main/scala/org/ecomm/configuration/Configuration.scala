@@ -1,13 +1,12 @@
 package org.ecomm.configuration
 
-import com.google.inject.Inject
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import akka.util.Timeout
 
 import scala.concurrent.duration._
 
-class Configuration @Inject() () {
+class Configuration() {
   lazy val underlyingConfig: Config =
     ConfigFactory.load().resolve()
 
@@ -25,11 +24,4 @@ class Configuration @Inject() () {
 
   lazy val timeout: Timeout =
     Timeout(server.getInt("timeout") seconds)
-
-  lazy val corsConfiguration: CORSConfiguration =
-    new CORSConfiguration(
-      server.getString("cors.origins").split(", "),
-      server.getString("cors.methods").split(", "),
-      server.getString("cors.headers").split(", ")
-    )
 }
