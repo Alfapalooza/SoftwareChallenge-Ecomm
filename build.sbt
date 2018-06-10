@@ -11,32 +11,34 @@ lazy val jsonParsingLibrary =
 
 lazy val root =
   (project in file("."))
-  .settings(
-    inThisBuild(List(
-      organization    := "org.ecomm",
-      scalaVersion    := "2.12.4"
-    )),
-    name := "akka-http-seed",
-    resolvers +=
-      Resolver.bintrayRepo("hseeberger", "maven"),
-    libraryDependencies ++=
-      Seq(
-        "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
-        "com.typesafe.akka" %% "akka-http-xml"        % akkaHttpVersion,
-        "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
-        "de.heikoseeberger" %% "akka-http-circe"      % "1.20.0",
+    .settings(
+      inThisBuild(List(
+        organization    := "org.ecomm",
+        scalaVersion    := "2.12.4"
+      )),
+      name := "akka-http-seed",
+      resolvers +=
+        Resolver.bintrayRepo("hseeberger", "maven"),
+      libraryDependencies ++=
+        Seq(
+          "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
+          "com.typesafe.akka" %% "akka-http-xml"        % akkaHttpVersion,
+          "com.typesafe.akka" %% "akka-slf4j"           % akkaVersion,
+          "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
+          "de.heikoseeberger" %% "akka-http-play-json"  % "1.17.0",
+          "ch.qos.logback"    % "logback-classic"       % "1.2.3",
 
-        "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
-        "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
-        "com.typesafe.akka" %% "akka-stream-testkit"  % akkaVersion     % Test,
-        "org.scalatest"     %% "scalatest"            % "3.0.1"         % Test) ++ dependencyInjectionLibraries :+ jsonParsingLibrary,
-    scalacOptions ++=
-      Seq(
-        "-unchecked",
-        "-deprecation",
-        "-Xlint",
-        "-Ywarn-dead-code",
-        "-language:_",
-        "-target:jvm-1.8",
-        "-encoding", "UTF-8")
-  )
+          "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
+          "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
+          "com.typesafe.akka" %% "akka-stream-testkit"  % akkaVersion     % Test,
+          "org.scalatest"     %% "scalatest"            % "3.0.1"         % Test) ++ dependencyInjectionLibraries :+ jsonParsingLibrary,
+      scalacOptions ++=
+        Seq(
+          "-unchecked",
+          "-deprecation",
+          "-Xlint",
+          "-Ywarn-dead-code",
+          "-language:_",
+          "-target:jvm-1.8",
+          "-encoding", "UTF-8")
+    )

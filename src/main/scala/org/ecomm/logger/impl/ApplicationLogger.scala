@@ -1,13 +1,11 @@
 package org.ecomm.logger.impl
 
 import com.google.inject.Inject
-
 import org.ecomm.logger.Logger
-
-import akka.actor.ActorSystem
 import akka.event.{ Logging, LoggingAdapter }
+import org.ecomm.guice.Akka
 
-class ApplicationLogger @Inject() (actorSystem: ActorSystem) extends Logger {
+class ApplicationLogger @Inject() (akka: Akka) extends Logger {
   override protected def logger: LoggingAdapter =
-    Logging(actorSystem, getClass)
+    Logging(akka.actorSystem, getClass)
 }

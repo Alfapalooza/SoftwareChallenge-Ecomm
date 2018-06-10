@@ -1,8 +1,10 @@
 package org.ecomm.models.exceptions
 
-import org.ecomm.models.DefaultJsonServiceResponse
+import org.ecomm.models.{ CommonJsonServiceResponseDictionary, DefaultJsonServiceResponse }
 
-case class JsonServiceResponseException(msg: String, code: Int, status: Int) extends Throwable(msg) with DefaultJsonServiceResponse {
+import scala.util.control.NoStackTrace
+
+case class JsonServiceResponseException(msg: String, code: Int, status: Int) extends Throwable(msg) with DefaultJsonServiceResponse with NoStackTrace {
   override def apply(message: String): JsonServiceResponseException =
     new JsonServiceResponseException(message, code, status)
 
@@ -14,12 +16,9 @@ case class JsonServiceResponseException(msg: String, code: Int, status: Int) ext
 }
 
 object JsonServiceResponseException {
-  object E0400 extends JsonServiceResponseException("Bad Request", 400, 400)
-  object E0500 extends JsonServiceResponseException("Internal Server Error", 500, 500)
-
   def apply(throwable: Throwable): JsonServiceResponseException =
     apply(throwable)
 
   def apply(ex: Exception): JsonServiceResponseException =
-    E0500.copy(msg = ex.getMessage)
+    CommonJsonServiceResponseDictionary.E0500(ex)
 }

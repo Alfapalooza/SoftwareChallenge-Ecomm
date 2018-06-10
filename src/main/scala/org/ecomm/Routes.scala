@@ -2,16 +2,18 @@ package org.ecomm
 
 import org.ecomm.configuration.Configuration
 import org.ecomm.controllers.directives.RequestResponseHandlingDirective
-import org.ecomm.guice.{ Akka, ModulesSupport }
-
+import org.ecomm.guice.{Akka, ModulesSupport}
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.StatusCodes.OK
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.PathDirectives.path
-import akka.http.scaladsl.server.directives.MarshallingEntityWithRequestDirective
 import akka.util.Timeout
+import org.ecomm.controllers.Basket
+import org.ecomm.models.CommonJsonServiceResponseDictionary.E0200
+import play.api.libs.json.Json
 
-trait Routes extends ModulesSupport with RequestResponseHandlingDirective with MarshallingEntityWithRequestDirective {
+trait Routes extends ModulesSupport with RequestResponseHandlingDirective {
   def akka: Akka
 
   def configuration: Configuration
@@ -23,11 +25,14 @@ trait Routes extends ModulesSupport with RequestResponseHandlingDirective with M
     akka.actorSystem
 
   lazy val defaultRoutes: Route =
-    ???
+    get {
+      complete(OK -> Json.toJson(E0200("Pong!")))
+    }
 
   lazy val pathBindings =
     Map(
-      "api" -> defaultRoutes
+      "ping" -> defaultRoutes,
+      "basket" -> new Basket(modulesProvider).routes,
     )
 
   lazy val routes: Route =

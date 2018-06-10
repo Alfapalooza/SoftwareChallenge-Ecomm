@@ -25,6 +25,9 @@ object Server extends App with Routes {
   override lazy val configuration: Configuration =
     modulesProvider.configuration
 
+  override lazy val corsConfiguration =
+    modulesProvider.configuration.corsConfiguration
+
   override lazy val requestLogger =
     injector.instance[RequestLogger]
 
