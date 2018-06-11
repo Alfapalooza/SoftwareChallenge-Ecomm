@@ -1,37 +1,55 @@
 package org.ecomm.helpers.basket
 
-import org.ecomm.controllers.requests.{ BasketItem, BasketItems }
-import org.ecomm.models.basket.{ BasketTotal, Items }
+import org.ecomm.controllers.requests.{BasketItem, BasketItems}
+import org.ecomm.models.{Price, UPC}
+import org.ecomm.models.basket.{BasketTotal, Items}
+import org.ecomm.models.basket.multisave.Multisave
 import org.ecomm.models.responses.exceptions.ItemNotFoundException
-import org.ecomm.utils.AkkaStreamsUtils._
 import org.ecomm.utils.PriceUtils._
 
+import akka.NotUsed
+import akka.http.scaladsl.server.directives.HttpRequestWithEntity
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 
-class BasketHelper()(implicit materializer: ActorMaterializer) {
-  private implicit val ec: ExecutionContext =
-    materializer.executionContext
+object BasketHelper {
+  private case class IntermediateItem(upc: UPC, price: Price, multisave: Seq[Multisave])
 
-  private val totalFlow =
-    Flow[BasketItem].map(item => Items.prices.getOrElse(item.upc, throw ItemNotFoundException(item.upc)))
+  //  private val itemQuantityMap: scala.collection.mutable.Map[UPC, Long] =
+  //    req
+  //      .body
+  //      .items
+  //      .groupBy(_.upc)
+  //      .mapValues {
+  //        _.foldLeft(0L) {
+  //          case (acc, item) =>
+  //            acc + item.quantity
+  //        }
+  //      }
 
-  def calculateBasketTotal(basketItems: BasketItems): Future[BasketTotal] =
-    for {
-      total <- calculateTotal(basketItems)
-      discount <- calculateDiscount(basketItems)
-    } yield BasketTotal(total, discount)
+  private val intermediateItemFlow: Flow[BasketItem, IntermediateItem, NotUsed] =
+    Flow[BasketItem]
+      .map { item =>
+        val itemPrice =
+          Items
+            .priceMap
+            .getOrElse(item.upc, throw ItemNotFoundException(item.upc))
+            .toPrice
 
-  private def calculateTotal(basketItems: BasketItems): Future[BigDecimal] =
-    basketItems
-      .items
-      .toSource
-      .via(totalFlow)
-      .runFold(BigDecimal(0))(_ + _)
-      .map(_.toPrice)
+        val itemMultisave =
+          Multisave
+            .multisaveMap
+            .getOrElse(item.upc, Nil)
 
-  private def calculateDiscount(basketItems: BasketItems): Future[BigDecimal] =
-    Future.successful(BigDecimal(0))
+        IntermediateItem(
+          item.upc,
+          itemPrice,
+          itemMultisave
+        )
+      }
+
+  def calculateTotal()(implicit req: HttpRequestWithEntity[BasketItems], materializer: ActorMaterializer): Future[BasketTotal] =
+    ???
 }

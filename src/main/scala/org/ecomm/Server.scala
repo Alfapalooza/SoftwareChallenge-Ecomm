@@ -1,7 +1,7 @@
 package org.ecomm
 
 import org.ecomm.configuration.Configuration
-import org.ecomm.helpers.basket.BasketHelper
+import org.ecomm.helpers.basket.TotalHelper
 import org.ecomm.logger.impl.{ ErrorLogger, RequestLogger }
 
 import akka.actor.ActorSystem
@@ -13,11 +13,11 @@ object Server extends App with Routes {
   val configuration: Configuration =
     new Configuration()
 
-  implicit val actorSystem: ActorSystem =
+  implicit val system: ActorSystem =
     ActorSystem(configuration.name, configuration.underlyingConfig)
 
-  implicit val actorMaterializer: ActorMaterializer =
-    ActorMaterializer()(actorSystem)
+  implicit val materializer: ActorMaterializer =
+    ActorMaterializer()(system)
 
   implicit val timeout: Timeout =
     configuration.timeout
@@ -27,9 +27,6 @@ object Server extends App with Routes {
 
   lazy val errorLogger: ErrorLogger =
     new ErrorLogger()
-
-  lazy val basketHelper: BasketHelper =
-    new BasketHelper()
 
   Http()
     .bindAndHandle(
