@@ -1,6 +1,6 @@
-# Ecomm Multisave
+# Ecomm Bundle Discount
 
-Will find the lowest possible price given a set of active product deals and a basket.
+Will find the lowest possible price given a set of active product bundle discount and a basket.
 Based off Byrde AkkaHttp Seed project, see: https://github.com/Byrde/akka-http-seed
 
 ## Running

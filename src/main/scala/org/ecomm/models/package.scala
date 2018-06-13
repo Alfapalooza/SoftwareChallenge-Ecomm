@@ -2,6 +2,6 @@ package org.ecomm
 
 package object models {
   type UPC = String
-  type MultisaveId = String
+  type BundleId = Long
   type Price = BigDecimal
 }
