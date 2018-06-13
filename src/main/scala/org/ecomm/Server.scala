@@ -1,7 +1,6 @@
 package org.ecomm
 
 import org.ecomm.configuration.Configuration
-import org.ecomm.helpers.basket.TotalHelper
 import org.ecomm.logger.impl.{ ErrorLogger, RequestLogger }
 
 import akka.actor.ActorSystem

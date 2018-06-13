@@ -1,8 +1,8 @@
 package org.ecomm.models.basket.multisave
 
-import org.ecomm.models.{ Price, UPC }
+import org.ecomm.models.{ MultisaveId, Price, UPC }
 
-case class Multisave(requirements: Seq[MultiSaveItemRequirements], discountAmount: Price)
+case class Multisave(id: MultisaveId, requirements: Seq[MultiSaveItemRequirements], discountAmount: Price)
 
 object Multisave {
   private val multisaveList =

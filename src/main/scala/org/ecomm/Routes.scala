@@ -4,14 +4,17 @@ import org.ecomm.configuration.Configuration
 import org.ecomm.controllers.ApiSupport
 import org.ecomm.controllers.requests.BasketItems
 import org.ecomm.controllers.directives.RequestResponseHandlingDirective
-import org.ecomm.helpers.basket.{BasketHelper, TotalHelper}
+import org.ecomm.helpers.basket.BasketHelper
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MarshallingEntityWithRequestDirective
 import akka.http.scaladsl.server.directives.PathDirectives.path
+import akka.stream.ActorMaterializer
 import akka.util.Timeout
+
+import scala.concurrent.{ ExecutionContextExecutor, Future }
 
 trait Routes extends ApiSupport with RequestResponseHandlingDirective with MarshallingEntityWithRequestDirective {
   def configuration: Configuration
@@ -25,9 +28,12 @@ trait Routes extends ApiSupport with RequestResponseHandlingDirective with Marsh
       pathPrefix("basket") {
         path("total") {
           post {
-            requestEntityUnmarshallerWithEntity(unmarshaller[BasketItems]) { implicit request =>
+            requestUnmarshallerWithEntity(unmarshaller[BasketItems]) { implicit request =>
+              implicit val ec: ExecutionContextExecutor =
+                ActorMaterializer().executionContext
+
               asyncJson {
-                BasketHelper.calculateTotal
+                Future(BasketHelper.calculateTotal)
               }
             }
           }
