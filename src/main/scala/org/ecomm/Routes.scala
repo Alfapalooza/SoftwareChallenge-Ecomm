@@ -33,7 +33,7 @@ trait Routes extends ApiSupport with RequestResponseHandlingDirective with Marsh
                 ActorMaterializer().executionContext
 
               asyncJson {
-                Future(BasketHelper.calculateTotal)
+                Future(BasketHelper.calculateTotal(request.body))
               }
             }
           }

@@ -11,7 +11,7 @@ case class BasketTotal(private val total: BigDecimal, private val discount: BigD
     total.toPrice
 
   val finalDiscount: Price =
-    discount.toPrice
+    -discount.toPrice
 
   lazy val grandTotal: Price =
     (total - discount).toPrice
@@ -19,8 +19,8 @@ case class BasketTotal(private val total: BigDecimal, private val discount: BigD
   override implicit def writes: Writes[BasketTotal] =
     (o: BasketTotal) =>
       Json.obj(
-        "total" -> total,
-        "discount" -> discount,
+        "total" -> finalTotal,
+        "discount" -> finalDiscount,
         "grandTotal" -> grandTotal
       )
 

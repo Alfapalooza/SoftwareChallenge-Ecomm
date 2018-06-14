@@ -7,8 +7,6 @@ import org.ecomm.models.basket.bundles.{ BundleDiscountItemRequirements, BundleD
 import org.ecomm.models.basket.bundles.BundleDiscountOperator.{ AND, OR }
 import org.ecomm.models.responses.exceptions.{ ItemNotFoundException, BundleRequirementNotMetException }
 
-import akka.http.scaladsl.server.directives.HttpRequestWithEntity
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -27,13 +25,12 @@ object BasketHelper {
   }
 
   //O(N) with branches on bundle discount and item requirements. So more like O(A + B + C)
-  def calculateTotal()(implicit req: HttpRequestWithEntity[BasketItems]): BasketTotal = {
+  def calculateTotal(basketItems: BasketItems): BasketTotal = {
     var total: BigDecimal =
       0
 
     val items =
-      req
-        .body
+      basketItems
         .items
         // Grouping items in the cart that have the same UPC, but
         // may be separated.
@@ -46,8 +43,8 @@ object BasketHelper {
     // Need mutable quantity Map to subtract items already in
     // play for applied bundleDiscounts discounts.
     val (intermediateItems, mutableItemQuantityMap) = {
-      val intermediateItems: mutable.Seq[IntermediateItem] =
-        mutable.Seq.empty[IntermediateItem]
+      val innerIntermediateItems: mutable.ArrayBuffer[IntermediateItem] =
+        mutable.ArrayBuffer.empty[IntermediateItem]
 
       val mutableItemQuantityMap =
         mutable.Map.empty[UPC, Long]
@@ -75,11 +72,11 @@ object BasketHelper {
             IntermediateItem(upc, itemBundleDiscounts)
 
           total += itemPrice * quantity
-          intermediateItems :+ intermediateItem
+          innerIntermediateItems += intermediateItem
           mutableItemQuantityMap.update(upc, quantity)
       }
 
-      intermediateItems -> mutableItemQuantityMap
+      innerIntermediateItems -> mutableItemQuantityMap
     }
 
     val discounts =
@@ -162,13 +159,11 @@ object BasketHelper {
       var bestOrRequirement: Option[BundleDiscountItemRequirements] =
         Option.empty[BundleDiscountItemRequirements]
 
-      if (orRequirements.nonEmpty) {
-        orRequirements.foreach { requirement =>
-          // Check to see that the requirement is met and that it is a better requirement than the current one.
-          if (requirementMet(requirement) && bestOrRequirement.fold(true)(requirement > _))
-            bestOrRequirement =
-              Some(requirement)
-        }
+      orRequirements.foreach { requirement =>
+        // Check to see that the requirement is met and that it is a better requirement than the current one.
+        if (requirementMet(requirement) && bestOrRequirement.fold(true)(requirement > _))
+          bestOrRequirement =
+            Some(requirement)
       }
 
       // Easy, all AND requirements need to be met

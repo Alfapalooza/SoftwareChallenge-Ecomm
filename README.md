@@ -62,8 +62,28 @@ Sample:
 
 All items:
 ```
-
+1234567890
+0987654321
+2345678901
+9876532101
+3456789012
+8765321098
+4567801234
+7890123456
+5678901234
+6789012345
 ```
+
+## Adding items & bundles
+
+- To add items go to ```Items.scala```, under ```val priceMap: Map[UPC, Price]``` add a new entry with desired UPC and Price.
+
+- To add a bundle go to ```BundleDiscount.scala```, under ```private val bundleDiscountList: Seq[BundleDiscount]``` add a new entry, this consists of:
+    -- Creating a sequence of ```BundleDiscountItemRequirements``` objects. The first field is the upc this requirement applies to,
+    the second field is the quantity required to meet this requirement, and the last field is the operator this indicates
+    whether this requirement is an OR or AND with other requirements (defaults to ```BundleDiscountOperator.OR```)
+    -- Creating a new ```BundleDiscount``` object, the first field is the one mentioned above, the second is the discount amount
+    in the case that the bundle discount requirements are met.
 
 ## Notes
 
