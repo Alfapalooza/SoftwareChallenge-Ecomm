@@ -1,10 +1,8 @@
 package org.ecomm.models.basket.bundles
 
-import org.ecomm.models.{ BundleId, Price, UPC }
+import org.ecomm.models.UPC
 
-case class BundleDiscount(id: BundleId, requirements: Seq[BundleDiscountItemRequirements], discountAmount: Price)
-
-object BundleDiscount {
+object BundleDiscountResource {
   private val bundleDiscountList: Seq[BundleDiscount] =
     Seq(
       //Buy 3 get 1 free
@@ -25,7 +23,22 @@ object BundleDiscount {
       BundleDiscount(
         Seq(
           BundleDiscountItemRequirements("2345678901", 10, BundleDiscountOperator.AND),
-          BundleDiscountItemRequirements("1234567890", 3)
+          BundleDiscountItemRequirements("1234567890", 5)
+        ),
+        20
+      ),
+      //Buy 1 of item 7890123456, and 1 of item 8765321098, get 10
+      BundleDiscount(
+        Seq(
+          BundleDiscountItemRequirements("7890123456", 1),
+          BundleDiscountItemRequirements("8765321098", 1)
+        ),
+        10
+      ),
+      //Buy 1 of item 7890123456, get 20
+      BundleDiscount(
+        Seq(
+          BundleDiscountItemRequirements("7890123456", 1)
         ),
         20
       ),
@@ -38,28 +51,6 @@ object BundleDiscount {
       )
     )
 
-  def convertBundleDiscountListToMap(bundleDiscountList: Seq[BundleDiscount]): Map[UPC, Seq[BundleDiscount]] = {
-    var id =
-      0L
-
-    bundleDiscountList
-      .flatMap { multisave =>
-        multisave.requirements.map { requirement =>
-          val tuple =
-            requirement.upc -> multisave.copy(id = id)
-
-          id = id + 1
-
-          tuple
-        }
-      }
-      .groupBy(_._1)
-      .mapValues(_.map(_._2))
-  }
-
   lazy val bundleDiscountsMap: Map[UPC, Seq[BundleDiscount]] =
-    convertBundleDiscountListToMap(bundleDiscountList)
-
-  def apply(requirements: Seq[BundleDiscountItemRequirements], discountAmount: Price): BundleDiscount =
-    BundleDiscount(0, requirements, discountAmount)
+    BundleDiscount.convertBundleDiscountListToMap(bundleDiscountList)
 }

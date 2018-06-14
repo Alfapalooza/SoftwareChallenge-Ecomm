@@ -2,10 +2,10 @@ package org.ecomm.helpers.basket
 
 import org.ecomm.controllers.requests.BasketItems
 import org.ecomm.models.{ BundleId, Price, UPC }
-import org.ecomm.models.basket.{ BasketTotal, Items }
-import org.ecomm.models.basket.bundles.{ BundleDiscountItemRequirements, BundleDiscount }
+import org.ecomm.models.basket.{ BasketTotal, Catalog }
+import org.ecomm.models.basket.bundles.{ BundleDiscount, BundleDiscountItemRequirements }
 import org.ecomm.models.basket.bundles.BundleDiscountOperator.{ AND, OR }
-import org.ecomm.models.responses.exceptions.{ ItemNotFoundException, BundleRequirementNotMetException }
+import org.ecomm.models.responses.exceptions.{ BundleRequirementNotMetException, ItemNotFoundException }
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -25,7 +25,7 @@ object BasketHelper {
   }
 
   //O(N) with branches on bundle discount and item requirements. So more like O(A + B + C)
-  def calculateTotal(basketItems: BasketItems): BasketTotal = {
+  def calculateTotal(basketItems: BasketItems)(implicit catalog: Catalog): BasketTotal = {
     var total: BigDecimal =
       0
 
@@ -59,12 +59,12 @@ object BasketHelper {
             }
 
           val itemPrice =
-            Items
+            catalog
               .priceMap
               .getOrElse(upc, throw ItemNotFoundException(upc))
 
           val itemBundleDiscounts =
-            BundleDiscount
+            catalog
               .bundleDiscountsMap
               .getOrElse(upc, Nil)
 
