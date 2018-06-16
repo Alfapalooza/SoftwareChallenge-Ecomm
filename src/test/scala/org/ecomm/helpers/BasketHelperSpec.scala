@@ -35,7 +35,7 @@ class BasketHelperSpec extends FlatSpec {
       createBasket(Seq(item -> itemQuantity))
 
     val basketTotal =
-      BasketHelper.calculateTotal(basket)
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
     assert(basketTotal.finalDiscount == 0)
     assert(basketTotal.finalTotal == basketTotal.grandTotal)
@@ -56,7 +56,7 @@ class BasketHelperSpec extends FlatSpec {
       createBasket(Seq(item -> itemQuantity))
 
     val basketTotal =
-      BasketHelper.calculateTotal(basket)
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
     assert(basketTotal.finalDiscount == -30)
     assert(basketTotal.finalTotal == itemPrice)
@@ -86,7 +86,7 @@ class BasketHelperSpec extends FlatSpec {
       createBasket(Seq(item1 -> item1Quantity, item2 -> item2Quantity))
 
     val basketTotal =
-      BasketHelper.calculateTotal(basket)
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
     assert(basketTotal.finalDiscount == -10.43)
     assert(basketTotal.finalTotal == item1Price + item2Price)
@@ -116,18 +116,14 @@ class BasketHelperSpec extends FlatSpec {
       createBasket(Seq(item1 -> item1Quantity, item2 -> item2Quantity))
 
     val basketTotal =
-      BasketHelper.calculateTotal(basket)
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
     assert(basketTotal.finalDiscount == -20.43)
     assert(basketTotal.finalTotal == item1Price + item2Price)
     assert(basketTotal.grandTotal == basketTotal.finalTotal - 20.43)
   }
 
-  //Combinatronics problem, lowest price should in fact be 20$, not 10$. This is trumped
-  //by the fact that we don't try every possible discount combinations. If a bundle discount for 10$ when buying
-  //1 of product XYZ, and 1 of some "secondary" product then it's applied, but if we encounter a better deal in the future for the
-  //"secondary" product from the deal above then it can't be applied since the product is already spoken for.
-  it should "apply a relatively simple discount where the lowest price isn't applied due to system design" in {
+  it should "apply a relatively simple discount where the lowest price isn't applied for function `calculateTotalSortedOrdering`, but is for `calculateTotalNaturalOrdering` & `calcualteTotalAllPermutations`" in {
     val item1 =
       "8765321098"
 
@@ -149,12 +145,70 @@ class BasketHelperSpec extends FlatSpec {
     val basket =
       createBasket(Seq(item1 -> item1Quantity, item2 -> item2Quantity))
 
-    val basketTotal =
-      BasketHelper.calculateTotal(basket)
+    val basketSortedTotal =
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
-    assert(basketTotal.finalDiscount == -10)
-    assert(basketTotal.finalTotal == item1Price + item2Price)
-    assert(basketTotal.grandTotal == basketTotal.finalTotal - 10)
+    assert(basketSortedTotal.finalDiscount == -10)
+    assert(basketSortedTotal.finalTotal == item1Price + item2Price)
+    assert(basketSortedTotal.grandTotal == basketSortedTotal.finalTotal - 10)
+  }
+
+  it should "have the lowest price when using `calculateTotalAllPermutations` in a scenario where `calculateTotalNaturalOrdering` has a lower price than `calculateTotalSortedOrdering`" in {
+    val item1 =
+      "7890123456"
+
+    val item1Quantity =
+      1
+
+    val item2 =
+      "8765321098"
+
+    val item2Quantity =
+      1
+
+    val basket =
+      createBasket(Seq(item1 -> item1Quantity, item2 -> item2Quantity))
+
+    val basketNaturalTotal =
+      BasketHelper.calculateTotalNaturalOrdering(basket)
+
+    val basketSortedTotal =
+      BasketHelper.calculateTotalSortedOrdering(basket)
+
+    val basketPermutationsTotal =
+      BasketHelper.calculateTotalAllPermutations(basket)
+
+    assert(basketNaturalTotal > basketSortedTotal)
+    assert(basketNaturalTotal == basketPermutationsTotal)
+  }
+
+  it should "have the lowest price when using `calculateTotalAllPermutations` in a scenario where `calculateTotalSortedOrdering` the same price as `calculateTotalNaturalOrdering`" in {
+    val item1 =
+      "3456789012"
+
+    val item1Quantity =
+      1
+
+    val item2 =
+      "9876532101"
+
+    val item2Quantity =
+      1
+
+    val basket =
+      createBasket(Seq(item1 -> item1Quantity, item2 -> item2Quantity))
+
+    val basketNaturalTotal =
+      BasketHelper.calculateTotalNaturalOrdering(basket)
+
+    val basketSortedTotal =
+      BasketHelper.calculateTotalSortedOrdering(basket)
+
+    val basketPermutationsTotal =
+      BasketHelper.calculateTotalAllPermutations(basket)
+
+    assert(basketSortedTotal == basketNaturalTotal)
+    assert(basketSortedTotal == basketPermutationsTotal)
   }
 
   it should "hit the jackpot when adding item '6789012345'" in {
@@ -171,7 +225,7 @@ class BasketHelperSpec extends FlatSpec {
       createBasket(Seq(item -> itemQuantity))
 
     val basketTotal =
-      BasketHelper.calculateTotal(basket)
+      BasketHelper.calculateTotalSortedOrdering(basket)
 
     assert(basketTotal.finalDiscount == -1000)
     assert(basketTotal.grandTotal == itemPrice - 1000)

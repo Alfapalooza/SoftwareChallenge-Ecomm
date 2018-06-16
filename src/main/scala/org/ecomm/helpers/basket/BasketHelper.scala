@@ -1,6 +1,6 @@
 package org.ecomm.helpers.basket
 
-import org.ecomm.controllers.requests.BasketItems
+import org.ecomm.controllers.requests.{ BasketItem, BasketItems }
 import org.ecomm.models.{ BundleId, Price, UPC }
 import org.ecomm.models.basket.{ BasketTotal, Catalog }
 import org.ecomm.models.basket.bundles.{ BundleDiscount, BundleDiscountItemRequirements }
@@ -24,11 +24,7 @@ object BasketHelper {
       ! >(intermediateBundleDiscount)
   }
 
-  //O(N) with branches on bundle discount and item requirements. So more like O(A + B + C)
-  def calculateTotal(basketItems: BasketItems)(implicit catalog: Catalog): BasketTotal = {
-    var total: BigDecimal =
-      0
-
+  def calculateTotalNaturalOrdering(basketItems: BasketItems)(implicit catalog: Catalog): BasketTotal = {
     val items =
       basketItems
         .items
@@ -36,9 +32,65 @@ object BasketHelper {
         // may be separated.
         .groupBy(_.upc)
         .toSeq
+
+    calculateTotal(items)
+  }
+
+  def calculateTotalSortedOrdering(basketItems: BasketItems)(implicit catalog: Catalog): BasketTotal = {
+    val items =
+      basketItems
+        .items
+        .groupBy(_.upc)
+        .toSeq
         // Since we're not running over the full combination range
         // it's crucial that there be some ordering for discount reproducibility.
         .sortWith(_._1 > _._1)
+
+    calculateTotal(items)
+  }
+
+  def calculateTotalAllPermutations(basketItems: BasketItems)(implicit catalog: Catalog): BasketTotal = {
+    def bestBasketTotal(basketTotals: Iterator[BasketTotal]): Option[BasketTotal] = {
+      var bestBasketTotal: Option[BasketTotal] =
+        Option.empty[BasketTotal]
+
+      basketTotals.foreach { basketTotal =>
+        if (bestBasketTotal.fold(true)(basketTotal > _))
+          bestBasketTotal =
+            Some(basketTotal)
+      }
+
+      bestBasketTotal
+    }
+
+    val items =
+      basketItems
+        .items
+        .groupBy(_.upc)
+
+    val itemsPermutations =
+      items
+        .keys
+        .toSeq
+        // All possible orderings of this cart
+        .permutations
+
+    val basketTotalPermutations =
+      itemsPermutations.map { itemKeys =>
+        val rejoinKeysAndValues =
+          itemKeys.map(key => key -> items(key))
+
+        calculateTotal(rejoinKeysAndValues)
+      }
+
+    bestBasketTotal(basketTotalPermutations)
+      .getOrElse(BasketTotal.empty)
+  }
+
+  //O(N) with branches on bundle discount and item requirements. So more like O(A + B + C)
+  private def calculateTotal(items: Seq[(UPC, Seq[BasketItem])])(implicit catalog: Catalog): BasketTotal = {
+    var total: BigDecimal =
+      0
 
     // Need mutable quantity Map to subtract items already in
     // play for applied bundleDiscounts discounts.
@@ -107,6 +159,7 @@ object BasketHelper {
                     if (newQuantity < 0)
                       throw BundleRequirementNotMetException(upc, bundleDiscount.id)
                     else
+                      // Side effect, that in theory, would cause this recursive function to eventually end
                       mutableItemQuantityMap.update(upc, newQuantity)
                 }
 

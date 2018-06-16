@@ -42,6 +42,20 @@ object BundleDiscountResource {
         ),
         20
       ),
+      BundleDiscount(
+        Seq(
+          BundleDiscountItemRequirements("3456789012", 1),
+          BundleDiscountItemRequirements("9876532101", 1)
+        ),
+        10
+      ),
+      //Buy 1 of item 7890123456, get 20
+      BundleDiscount(
+        Seq(
+          BundleDiscountItemRequirements("9876532101", 1)
+        ),
+        20
+      ),
       //Buy 1 get 1000$
       BundleDiscount(
         Seq(

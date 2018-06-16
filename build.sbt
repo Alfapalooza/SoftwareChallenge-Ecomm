@@ -14,6 +14,7 @@ lazy val root =
       name := "akka-http-seed",
       resolvers +=
         Resolver.bintrayRepo("hseeberger", "maven"),
+      fork in Test := false,
       libraryDependencies ++=
         Seq(
           "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
