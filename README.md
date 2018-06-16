@@ -54,7 +54,7 @@ Sample:
   "items": [
     {
       "upc": "1234567890",
-      "quantity": "1"
+      "quantity": 1
     }
   ]
 }
